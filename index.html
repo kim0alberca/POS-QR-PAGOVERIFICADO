@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pantalla de Cobro POS - QR Dinámico</title>
-    <!-- Librería estable de generación QR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Pantalla de Cobro POS - Yape y Plin</title>
     <style>
         :root {
             --primary-green: #00c853;
@@ -149,22 +147,24 @@
             margin-bottom: 10px;
         }
 
-        .qr-canvas-container {
+        .qr-img-container {
             padding: 8px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 8px;
+            width: 176px;
+            height: 176px;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 176px;
-            height: 176px;
         }
 
-        #qrcode img {
-            display: block;
-            margin: 0 auto;
+        .qr-img-container img {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            border-radius: 6px;
         }
 
         .titular-info {
@@ -216,7 +216,7 @@
             <div class="monto-label">Total a Cobrar</div>
             <div class="monto-input-wrapper">
                 <span class="monto-symbol">S/</span>
-                <input type="number" id="montoInput" class="monto-input" value="10.00" step="0.10" min="0" oninput="actualizarQR()">
+                <input type="number" id="montoInput" class="monto-input" value="3.00" step="0.10" min="0">
             </div>
         </div>
 
@@ -234,8 +234,9 @@
 
         <div class="qr-section" id="panel-qr">
             <div class="qr-title" id="qr-titulo">Escanea para pagar con Yape</div>
-            <div class="qr-canvas-container">
-                <div id="qrcode"></div>
+            <div class="qr-img-container">
+                <!-- Imagen oficial del QR subida a GitHub -->
+                <img id="imagenQr" src="qr-yape.png" alt="Código QR Yape">
             </div>
             <div class="titular-info">Titular:</div>
             <div class="titular-nombre" id="nombreTitular">KIMBERLY ALBERCA</div>
@@ -251,13 +252,7 @@
     </div>
 
     <script>
-        const CONFIG_COMERCIO = {
-            telefono: "968495402",
-            titular: "KIMBERLY ALBERCA"
-        };
-
         let metodoActual = 'yape';
-        let qrObjeto = null;
 
         function seleccionarMetodo(metodo) {
             metodoActual = metodo;
@@ -269,6 +264,8 @@
 
             const panelQr = document.getElementById('panel-qr');
             const panelEfectivo = document.getElementById('panel-efectivo');
+            const imagenQr = document.getElementById('imagenQr');
+            const tituloQr = document.getElementById('qr-titulo');
 
             if (metodo === 'efectivo') {
                 panelQr.classList.add('hidden');
@@ -277,70 +274,14 @@
                 panelEfectivo.classList.add('hidden');
                 panelQr.classList.remove('hidden');
                 
-                const tituloQr = document.getElementById('qr-titulo');
                 if (metodo === 'yape') {
                     tituloQr.innerText = "Escanea para pagar con Yape";
+                    imagenQr.src = "qr-yape.png"; // Asegúrate de tener esta imagen en tu repositorio
                 } else {
                     tituloQr.innerText = "Escanea para pagar con Plin";
-                }
-                actualizarQR();
-            }
-        }
-
-        function calcularCRC16(str) {
-            let crc = 0xFFFF;
-            for (let i = 0; i < str.length; i++) {
-                crc ^= str.charCodeAt(i) << 8;
-                for (let j = 0; j < 8; j++) {
-                    if ((crc & 0x8000) !== 0) {
-                        crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
-                    } else {
-                        crc = (crc << 1) & 0xFFFF;
-                    }
+                    imagenQr.src = "qr-plin.png"; // Asegúrate de tener esta imagen en tu repositorio
                 }
             }
-            return crc.toString(16).toUpperCase().padStart(4, '0');
-        }
-
-        function generarPayloadEMVCo(monto, telefono) {
-            const payloadIndicator = "000201";  
-            const pointOfInitiation = "010212"; 
-            
-            const idPlin = `0009PE.PLIN.0109${telefono}`;
-            const merchantInfoTag = `26${idPlin.length.toString().padStart(2, '0')}${idPlin}`;
-
-            const currency = "5303604";          
-            
-            const montoVal = parseFloat(monto) || 0;
-            const montoFormatted = montoVal.toFixed(2);
-            const amountTag = `54${montoFormatted.length.toString().padStart(2, '0')}${montoFormatted}`;
-            
-            const countryCode = "5802PE";        
-
-            const basePayload = `${payloadIndicator}${pointOfInitiation}${merchantInfoTag}${currency}${amountTag}${countryCode}6304`;
-            
-            const checksum = calcularCRC16(basePayload);
-            return `${basePayload}${checksum}`;
-        }
-
-        function actualizarQR() {
-            if (metodoActual === 'efectivo') return;
-
-            const montoInput = document.getElementById('montoInput').value;
-            const monto = parseFloat(montoInput) || 0;
-            const emvcoString = generarPayloadEMVCo(monto, CONFIG_COMERCIO.telefono);
-
-            const contenedor = document.getElementById('qrcode');
-            contenedor.innerHTML = ""; // Limpiar código anterior
-
-            qrObjeto = new QRCode(contenedor, {
-                text: emvcoString,
-                width: 160,
-                height: 160,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
-            });
         }
 
         function confirmarVenta() {
@@ -348,14 +289,9 @@
             if (metodoActual === 'efectivo') {
                 alert(`Venta en efectivo registrada por S/ ${parseFloat(monto).toFixed(2)}`);
             } else {
-                alert(`Verificando transacción de ${metodoActual.toUpperCase()} por S/ ${parseFloat(monto).toFixed(2)}...`);
+                alert(`Verificando constancia de ${metodoActual.toUpperCase()} por S/ ${parseFloat(monto).toFixed(2)} en tu celular...`);
             }
         }
-
-        // Inicializar al cargar la página
-        window.onload = function() {
-            actualizarQR();
-        };
     </script>
 </body>
 </html>
