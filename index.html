@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>POS Pagos - Kimberly Alberca</title>
+    
+    <!-- Favicon y PWA Config -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00c853">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="logo.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -73,8 +82,21 @@
             padding-bottom: 8px;
         }
 
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
         .header h2 {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             color: var(--text-dark);
             font-weight: 800;
         }
@@ -82,26 +104,26 @@
         .header-acciones {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             flex-wrap: wrap;
             justify-content: flex-end;
         }
 
         .timer {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             background: #fef2f2;
             color: #ef4444;
-            padding: 4px 6px;
+            padding: 4px 5px;
             border-radius: 8px;
             font-weight: 800;
             border: 1px solid #fee2e2;
         }
 
         .btn-admin-ingresos {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             background: #f0fdf4;
             color: var(--primary-green-hover);
-            padding: 5px 6px;
+            padding: 5px 5px;
             border-radius: 8px;
             font-weight: 800;
             border: 1px solid #bbf7d0;
@@ -113,10 +135,10 @@
         }
 
         .btn-theme, .btn-historial {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             background: var(--bg-color);
             color: var(--text-dark);
-            padding: 5px 6px;
+            padding: 5px 5px;
             border-radius: 8px;
             font-weight: 800;
             border: 1px solid var(--border-color);
@@ -461,11 +483,14 @@
 
     <div class="pos-container">
         <div class="header">
-            <h2>Revisar Orden</h2>
+            <div class="header-brand">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <h2>POS Pagos</h2>
+            </div>
             <div class="header-acciones">
-                <button class="btn-historial" onclick="abrirHistorial()">📜 Historial</button>
-                <button class="btn-theme" onclick="alternarTema()">🌙 / ☀️</button>
-                <button class="btn-admin-ingresos" onclick="consultarIngresos()">📊 Ver Ingresos</button>
+                <button class="btn-historial" onclick="abrirHistorial()">📜</button>
+                <button class="btn-theme" onclick="alternarTema()">🌙</button>
+                <button class="btn-admin-ingresos" onclick="consultarIngresos()">📊 Sheet</button>
                 <div class="timer" id="timer">⏱️ 05:00</div>
             </div>
         </div>
@@ -707,7 +732,7 @@
         }
 
         function consultarIngresos() {
-            const urlWebScript = "https://script.google.com/macros/s/AKfycbyxkfCCiaiXhcY48J8YmaR3swww-9kQiCZ33cZI1GPL8Y1c3LOaYvey42dCA21zVubN/exec";
+            const urlWebScript = "https://script.google.com/macros/s/AKfycbyxkfCCiaiXhcY48J8YmaR3swww-9kQiCZ33cZI1GPL8Y1c3LOaYvej42dCA21zVubN/exec";
             if (urlWebScript.includes("PEGUE_AQUI")) {
                 alert("Configura tu enlace de Apps Script primero.");
                 return;
