@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantalla de Cobro POS - QR Dinámico</title>
-    <!-- Librería estándar para dibujar el código QR en un Canvas -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         :root {
@@ -57,7 +56,6 @@
             font-weight: 700;
         }
 
-        /* Campo de Monto Dinámico */
         .monto-section {
             background-color: #f8fafc;
             border-radius: 14px;
@@ -99,7 +97,6 @@
             outline: none;
         }
 
-        /* Selector de Métodos de Pago */
         .metodos-pago {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -125,7 +122,6 @@
             color: var(--text-dark);
         }
 
-        /* Tarjeta del QR */
         .qr-section {
             display: flex;
             flex-direction: column;
@@ -163,7 +159,6 @@
             font-weight: 700;
         }
 
-        /* Botón de Confirmar Venta */
         .btn-confirmar {
             width: 100%;
             padding: 15px;
@@ -190,7 +185,6 @@
             <h2>Revisar Orden</h2>
         </div>
 
-        <!-- Campo donde cambias el monto dinámicamente -->
         <div class="monto-section">
             <div class="monto-label">Total a Cobrar</div>
             <div class="monto-input-wrapper">
@@ -221,21 +215,16 @@
         </div>
 
         <button class="btn-confirmar" onclick="confirmarVenta()">
-            ✓ Confirmar Venta
+            ✓ Verificar Pago / Confirmar
         </button>
     </div>
 
     <script>
-        // CONFIGURACIÓN DE TU CUENTA
         const CONFIG_COMERCIO = {
-            telefono: "968495402", // <-- Coloca aquí tu número registrado en Plin / Yape
+            telefono: "968495402",
             titular: "KIMBERLY ALBERCA"
         };
 
-        /**
-         * Algoritmo de Verificación CRC16 (ISO 3309)
-         * Requerido por la norma EMVCo para validar que la cadena del QR no fue alterada.
-         */
         function calcularCRC16(str) {
             let crc = 0xFFFF;
             for (let i = 0; i < str.length; i++) {
@@ -251,45 +240,33 @@
             return crc.toString(16).toUpperCase().padStart(4, '0');
         }
 
-        /**
-         * Genera el payload de texto con la especificación EMVCo de Perú
-         */
         function generarPayloadEMVCo(monto, telefono) {
-            const payloadIndicator = "000201";  // EMVCo Versión 01
-            const pointOfInitiation = "010212"; // 12 = QR Dinámico (Monto precargado)
+            const payloadIndicator = "000201";  
+            const pointOfInitiation = "010212"; 
             
-            // Tag 26: Especificación Interoperable de Perú
-            const idPlin = 0009PE.PLIN.0109${telefono};
-            const merchantInfoTag = 26${idPlin.length.toString().padStart(2, '0')}${idPlin};
+            const idPlin = `0009PE.PLIN.0109${telefono}`;
+            const merchantInfoTag = `26${idPlin.length.toString().padStart(2, '0')}${idPlin}`;
 
-            const currency = "5303604";          // Código ISO 604 = Sol Peruano (PEN)
+            const currency = "5303604";          
             
-            // Formateo del monto exacto con 2 decimales
             const montoVal = parseFloat(monto) || 0;
             const montoFormatted = montoVal.toFixed(2);
-            const amountTag = 54${montoFormatted.length.toString().padStart(2, '0')}${montoFormatted};
+            const amountTag = `54${montoFormatted.length.toString().padStart(2, '0')}${montoFormatted}`;
             
-            const countryCode = "5802PE";        // Perú
+            const countryCode = "5802PE";        
 
-            // Cadena base sin el código CRC
-            const basePayload = ${payloadIndicator}${pointOfInitiation}${merchantInfoTag}${currency}${amountTag}${countryCode}6304;
+            const basePayload = `${payloadIndicator}${pointOfInitiation}${merchantInfoTag}${currency}${amountTag}${countryCode}6304`;
             
-            // Genera y concatena la firma CRC16
             const checksum = calcularCRC16(basePayload);
-            return ${basePayload}${checksum};
+            return `${basePayload}${checksum}`;
         }
 
-        /**
-         * Renderiza el código QR en el Canvas HTML
-         */
         function actualizarQR() {
             const montoInput = document.getElementById('montoInput').value;
             const monto = parseFloat(montoInput) || 0;
 
-            // 1. Crear la cadena EMVCo
             const emvcoString = generarPayloadEMVCo(monto, CONFIG_COMERCIO.telefono);
 
-            // 2. Dibujar el QR mediante QRCode.js
             const canvas = document.getElementById('qr-canvas');
             QRCode.toCanvas(canvas, emvcoString, {
                 width: 170,
@@ -303,10 +280,10 @@
 
         function confirmarVenta() {
             const monto = document.getElementById('montoInput').value;
-            alert(¡Venta confirmada por S/ ${parseFloat(monto).toFixed(2)}!);
+            // Aquí puedes integrar una consulta a tu servidor para validar si el pago ya ingresó
+            alert(`Verificando transacción por S/ ${parseFloat(monto).toFixed(2)}... Asegúrate de confirmar el ingreso en tu celular.`);
         }
 
-        // Genera el primer QR apenas abre la pantalla
         window.onload = function() {
             actualizarQR();
         };
