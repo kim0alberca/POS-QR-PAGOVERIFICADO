@@ -35,7 +35,7 @@
             width: 100%;
             max-width: 420px;
             background-color: var(--card-bg);
-            padding: 16px 16px 90px 16px; /* Espacio inferior extra para que el botón fijo no tape contenido */
+            padding: 16px 16px 90px 16px;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -138,7 +138,6 @@
             pointer-events: none;
         }
 
-        /* Sección QR Cómoda y Estética */
         .qr-section {
             display: flex;
             flex-direction: column;
@@ -218,7 +217,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Panel de Efectivo Espacioso */
         .efectivo-panel {
             display: flex;
             flex-direction: column;
@@ -260,7 +258,6 @@
             color: var(--primary-green);
         }
 
-        /* Botón de Confirmación Fijo Abajo (Nunca se oculta) */
         .footer-action {
             position: fixed;
             bottom: 0;
@@ -294,7 +291,6 @@
             background-color: var(--primary-green-hover);
         }
 
-        /* Modal de Éxito */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -376,7 +372,7 @@
             </div>
         </div>
 
-        <!-- Panel QR (Yape / Plin) -->
+        <!-- Panel QR -->
         <div class="qr-section" id="panel-qr">
             <div class="qr-title" id="qr-titulo">Escanea para pagar con Yape</div>
             <div class="qr-img-container">
@@ -404,7 +400,7 @@
         </div>
     </div>
 
-    <!-- Botón Fijo Inferior para que SIEMPRE esté visible -->
+    <!-- Botón Fijo Inferior -->
     <div class="footer-action">
         <button class="btn-confirmar" onclick="confirmarVenta()">
             ✓ Verificar Pago / Confirmar
@@ -475,7 +471,7 @@
         }
 
         function confirmarVenta() {
-            const monto = document.getElementById('montoInput').value;
+            const monto = parseFloat(document.getElementById('montoInput').value) || 0;
             const modal = document.getElementById('modalExito');
             const detalle = document.getElementById('modalDetalle');
 
@@ -484,13 +480,39 @@
                 return;
             }
 
+            let infoDetalle = "";
             if (metodoActual === 'efectivo') {
-                detalle.innerText = `Efectivo por S/ ${parseFloat(monto).toFixed(2)} registrado correctamente.`;
+                const recibido = parseFloat(document.getElementById('pagoCliente').value) || 0;
+                infoDetalle = `Recibido: S/ ${recibido.toFixed(2)}`;
+                detalle.innerText = `Efectivo por S/ ${monto.toFixed(2)} registrado correctamente.`;
             } else {
-                detalle.innerText = `Verifica que el abono de S/ ${parseFloat(monto).toFixed(2)} vía ${metodoActual.toUpperCase()} esté reflejado en tu celular.`;
+                infoDetalle = `Pago vía ${metodoActual.toUpperCase()}`;
+                detalle.innerText = `Verifica que el abono de S/ ${monto.toFixed(2)} vía ${metodoActual.toUpperCase()} esté reflejado en tu celular.`;
             }
 
+            // ENVIAR DATOS A GOOGLE SHEETS AUTOMÁTICAMENTE
+            enviarAlGoogleSheet(monto, metodoActual.toUpperCase(), infoDetalle);
+
             modal.classList.add('show');
+        }
+
+        function enviarAlGoogleSheet(monto, metodo, detalle) {
+            const urlWebScript = "PEGUE_AQUI_TU_URL_DE_APPS_SCRIPT"; // <-- PEGA TU ENLACE /exec AQUÍ ENTRE LAS COMILLAS
+            
+            if (urlWebScript.includes("PEGUE_AQUI")) return; // Evita error si olvida cambiarlo
+
+            const datos = {
+                monto: monto,
+                metodo: metodo,
+                detalle: detalle
+            };
+
+            fetch(urlWebScript, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datos)
+            }).catch(error => console.error("Error al guardar en Sheet:", error));
         }
 
         function cerrarModal() {
