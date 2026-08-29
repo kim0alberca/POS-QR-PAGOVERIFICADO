@@ -3,8 +3,8 @@
   "short_name": "POS Pagos",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#00c853",
+  "background_color": "#ffffff",
+  "theme_color": "##ffffff",
   "icons": [
     {
       "src": "logo.png",
