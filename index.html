@@ -57,6 +57,12 @@
             font-weight: 800;
         }
 
+        .header-acciones {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .timer {
             font-size: 0.8rem;
             background: #fef2f2;
@@ -65,6 +71,21 @@
             border-radius: 8px;
             font-weight: 800;
             border: 1px solid #fee2e2;
+        }
+
+        .btn-admin-ingresos {
+            font-size: 0.75rem;
+            background: #f0fdf4;
+            color: var(--primary-green-hover);
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-weight: 800;
+            border: 1px solid #bbf7d0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-admin-ingresos:hover {
+            background: #dcfce7;
         }
 
         .monto-section {
@@ -349,7 +370,10 @@
     <div class="pos-container">
         <div class="header">
             <h2>Revisar Orden</h2>
-            <div class="timer" id="timer">⏱️ 05:00</div>
+            <div class="header-acciones">
+                <button class="btn-admin-ingresos" onclick="consultarIngresos()">📊 Ver Ingresos</button>
+                <div class="timer" id="timer">⏱️ 05:00</div>
+            </div>
         </div>
 
         <div class="monto-section">
@@ -513,6 +537,17 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(datos)
             }).catch(error => console.error("Error al guardar en Sheet:", error));
+        }
+
+        function consultarIngresos() {
+            const urlWebScript = "https://script.google.com/macros/s/AKfycbyxkfCCiaiXhcY48J8YmaR3swww-9kQiCZ33cZI1GPL8Y1c3LOaYvey42dCA21zVubN/exec";
+            if (urlWebScript.includes("PEGUE_AQUI")) {
+                alert("Configura tu enlace de Apps Script primero.");
+                return;
+            }
+            
+            // Abre tu Google Sheet directamente en otra pestaña para ver los totales de forma rápida y segura
+            window.open("https://docs.google.com/spreadsheets/d/1_mH6HO6G-vE3mbK7xNqDuUxLhiVXC_2Yo3_xSQBrTZk/edit", "_blank");
         }
 
         function cerrarModal() {
