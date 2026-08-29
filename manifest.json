@@ -1,0 +1,15 @@
+{
+  "name": "POS Pagos - Kimberly Alberca",
+  "short_name": "POS Pagos",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#00c853",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
