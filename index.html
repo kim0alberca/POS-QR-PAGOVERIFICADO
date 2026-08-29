@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantalla de Cobro POS - QR Dinámico Yape/Plin</title>
-    <!-- Librería QRCode.js -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- Librería QRCode.js compatible con contenedores HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --primary-green: #00c853;
@@ -153,6 +153,18 @@
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             margin-bottom: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 186px;
+            min-width: 186px;
+        }
+
+        /* Centrar la imagen QR generada automáticamente */
+        #qrcode img {
+            display: block;
+            margin: 0 auto;
+            border-radius: 6px;
         }
 
         .titular-info {
@@ -223,7 +235,8 @@
         <div class="qr-section" id="panel-qr">
             <div class="qr-title" id="qr-titulo">Escanea para pagar con Yape</div>
             <div class="qr-canvas-container">
-                <canvas id="qr-canvas"></canvas>
+                <!-- Contenedor donde se dibujará automáticamente el QR -->
+                <div id="qrcode"></div>
             </div>
             <div class="titular-info">Titular:</div>
             <div class="titular-nombre" id="nombreTitular">KIMBERLY ALBERCA</div>
@@ -245,6 +258,7 @@
         };
 
         let metodoActual = 'yape';
+        let qrInstance = null;
 
         function seleccionarMetodo(metodo) {
             metodoActual = metodo;
@@ -282,7 +296,7 @@
                     if ((crc & 0x8000) !== 0) {
                         crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
                     } else {
-                        crc = (crc << 1) & 0xFFFF;
+                        crc = ((crc << 1) & 0xFFFF;
                     }
                 }
             }
@@ -318,21 +332,19 @@
 
             const emvcoString = generarPayloadEMVCo(monto, CONFIG_COMERCIO.telefono);
 
-            const canvas = document.getElementById('qr-canvas');
-            
-            // Verificación para asegurar que la librería cargó correctamente antes de pintar
-            if (typeof QRCode !== 'undefined') {
-                QRCode.toCanvas(canvas, emvcoString, {
-                    width: 170,
-                    margin: 1,
-                    color: {
-                        dark: '#000000',
-                        light: '#ffffff'
-                    }
-                }, function (error) {
-                    if (error) console.error(error);
-                });
-            }
+            // Limpiar contenedor previo
+            const contenedorQR = document.getElementById('qrcode');
+            contenedorQR.innerHTML = "";
+
+            // Generar nuevo QR dinámico
+            qrInstance = new QRCode(contenedorQR, {
+                text: emvcoString,
+                width: 170,
+                height: 170,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
         }
 
         function confirmarVenta() {
